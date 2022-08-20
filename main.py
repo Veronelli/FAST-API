@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, Query
 from pydantic import BaseModel
 from typing import Optional
 
@@ -14,6 +14,7 @@ class Person(BaseModel):
     hair_color: Optional[str]
     is_married: Optional[bool]
 
+
 @app.get("/")
 def home():
     return {"message":"Hello World"}
@@ -23,3 +24,12 @@ def home():
 def create_person(person:Person = Body(...)):
     return person
 
+
+# Validaciones: Query parameters
+
+@app.get("/person/detail")
+def show_person(
+    name:Optional[str] = Query(None, min_length=1,max_length=24),
+    age: Optional[int] = Query(...)
+    ):
+    return {name:age}
