@@ -1,5 +1,5 @@
 from doctest import Example
-from fastapi import FastAPI, Body, Path, Query, status
+from fastapi import FastAPI, Body, Form, Path, Query, status
 from pydantic import BaseModel, Field, EmailStr, HttpUrl, create_model
 from typing import Optional
 from enum import Enum
@@ -34,6 +34,10 @@ class Location(BaseModel):
     city: str = Field(min_length=4, example="VDP")
     state: str = Field(...,min_length=4, example ="CABA")
     country: str = Field(...,max_length=10, example="ARG")
+
+class LoginOut(BaseModel):
+    username: str = Field(...,max_length=20,example="Facundo")
+
 
 @app.get(path="/",status_code=status.HTTP_200_OK)
 def home():
@@ -92,3 +96,7 @@ def update_person(
     results.update(location.dict())
 
     return results
+
+@app.post(path="/login",response_model=LoginOut,status_code=status.HTTP_200_OK)
+def login(username: str = Form(...),password: str = Form(...)):
+    return LoginOut(username=username)
