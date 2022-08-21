@@ -1,5 +1,5 @@
 from doctest import Example
-from fastapi import FastAPI, Body, Path, Query
+from fastapi import FastAPI, Body, Path, Query, status
 from pydantic import BaseModel, Field, EmailStr, HttpUrl, create_model
 from typing import Optional
 from enum import Enum
@@ -35,19 +35,19 @@ class Location(BaseModel):
     state: str = Field(...,min_length=4, example ="CABA")
     country: str = Field(...,max_length=10, example="ARG")
 
-@app.get("/")
+@app.get(path="/",status_code=status.HTTP_200_OK)
 def home():
     return {"message":"Hello World"}
 
 # Request and Response Body
-@app.post("/person/new",response_model=Person)
+@app.post(path="/person/new",response_model=Person,status_code=status.HTTP_201_CREATED)
 def create_person(person:Person_ = Body(...)):
     return person
 
 
 # Validaciones: Query parameters
 
-@app.get("/person/detail")
+@app.get(path="/person/detail", status_code=status.HTTP_200_OK)
 def show_person(
     name:Optional[str] = Query(
         None,
@@ -69,14 +69,14 @@ def show_person(
 
 # Validaciones: Path Parameters
 
-@app.get("/person/detail/{person_id}")
+@app.get(path="/person/detail/{person_id}", status_code=status.HTTP_302_FOUND)
 def show_person(person_id: int = Path(...,gt=0,example=3)):
     return {person_id:"exits"}
 
 
 # Validaciones: Request Body
 
-@app.put("/person/{person_id}")
+@app.put(path="/person/{person_id}", status_code=status.HTTP_202_ACCEPTED)
 def update_person(
     person_id:int = Path(
         ...,
