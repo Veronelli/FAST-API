@@ -62,11 +62,13 @@ def show_person(
         min_length=1,
         max_length=24,
         title="Person Name",
-        description="This is the person name it's between 1 to 24 characters"
+        description="This is the person name it's between 1 to 24 characters",
+        example="Facundo",
         ),
 
         age: Optional[int] = Query(
             ...,
+            example=22,
             title="Person age",
             description="This is the person age, it's requied parameter"
             )
@@ -76,7 +78,7 @@ def show_person(
 # Validaciones: Path Parameters
 
 @app.get("/person/detail/{person_id}")
-def show_person(person_id: int = Path(...,gt=0)):
+def show_person(person_id: int = Path(...,gt=0,example=3)):
     return {person_id:"exits"}
 
 
@@ -88,7 +90,8 @@ def update_person(
         ...,
         title = "person id",
         description = "this is the person id",
-        gt = 0
+        gt = 0,
+        example=1
         ),
         person: Person = Body(...),
         location: Location = Body(...)
