@@ -1,6 +1,6 @@
 from doctest import Example
 from fastapi import FastAPI, Body, Path, Query
-from pydantic import BaseModel, Field, EmailStr, HttpUrl, PositiveInt
+from pydantic import BaseModel, Field, EmailStr, HttpUrl, create_model
 from typing import Optional
 from enum import Enum
 app = FastAPI()
@@ -14,6 +14,9 @@ class HairColor(Enum):
     blonde = "blonde"
     red = "red"
 
+class _Person(BaseModel):
+    password: str = Field(..., min_length=8, max_length=100,example="password")
+
 class Person(BaseModel):
     first_name: str = Field(...,min_length=1,max_length=24, example="Facundo")
     last_name: str = Field(...,min_length=1,max_length=24, example="Veronelli")
@@ -24,20 +27,9 @@ class Person(BaseModel):
     hair_color: Optional[HairColor] = Field(default=None)
     is_married: Optional[bool] = Field(default = False)
 
-    # class Config:
-    #     schema_extra = {
-    #         "example": {
-    #             "first_name": "Facundo",
-    #             "last_name": "Veronelli",
-    #             "age": 22,
-    #             "email": "facu@example.com",
-    #             "blog": "https://www.facu.com",
+class Person_(Person,_Person):
+    pass
 
-    #             "hair_color": "brown",
-    #             "is_married": False
-
-    #         },
-    #     }
 class Location(BaseModel):
     city: str = Field(min_length=4, example="VDP")
     state: str = Field(...,min_length=4, example ="CABA")
@@ -48,8 +40,8 @@ def home():
     return {"message":"Hello World"}
 
 # Request and Response Body
-@app.post("/person/new")
-def create_person(person:Person = Body(...)):
+@app.post("/person/new",response_model=Person)
+def create_person(person:Person_ = Body(...)):
     return person
 
 
