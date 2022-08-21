@@ -1,5 +1,6 @@
 from doctest import Example
-from fastapi import FastAPI, Body, Form, Path, Query, status
+from optparse import Option
+from fastapi import Cookie, FastAPI, Body, Form, Header, Path, Query, status
 from pydantic import BaseModel, Field, EmailStr, HttpUrl, create_model
 from typing import Optional
 from enum import Enum
@@ -97,6 +98,34 @@ def update_person(
 
     return results
 
+# Forms
+
 @app.post(path="/login",response_model=LoginOut,status_code=status.HTTP_200_OK)
 def login(username: str = Form(...),password: str = Form(...)):
     return LoginOut(username=username)
+
+# Cookies and headers Parameters
+@app.post(path="/contact", status_code=status.HTTP_200_OK)
+def contact(
+    first_name: str = Form(
+        ...,
+        max_length=20,
+        example="Facundo",
+        min_length=5
+        ),
+    last_name: str = Form(
+        ...,
+        max_length=20,
+        example="Veronelli",
+        min_length=5
+        ),
+    email: EmailStr = Form(...),
+    message: str = Form(
+        ...,
+        min_length=10,
+        example="Hello, I'm Facundo Veronelli :)"
+        ),
+    user_agent: Optional[str] = Header(default = None),
+    ads: Optional[str] = Cookie(default=None) 
+    ):
+    return user_agent
