@@ -1,6 +1,18 @@
 from doctest import Example
 from optparse import Option
-from fastapi import Cookie, FastAPI, Body, File, Form, Header, Path, Query, UploadFile, status
+from fastapi import (
+    Cookie,
+    FastAPI,
+    Body,
+    File,
+    Form,
+    Header,
+    Path,
+    Query,
+    UploadFile,
+    status,
+    HTTPException
+)
 from pydantic import BaseModel, Field, EmailStr, HttpUrl, create_model
 from typing import Optional
 from enum import Enum
@@ -40,19 +52,19 @@ class LoginOut(BaseModel):
     username: str = Field(...,max_length=20,example="Facundo")
 
 
-@app.get(path="/",status_code=status.HTTP_200_OK)
+@app.get(path="/",status_code=status.HTTP_200_OK, tags=["Home"])
 def home():
     return {"message":"Hello World"}
 
 # Request and Response Body
-@app.post(path="/person/new",response_model=Person,status_code=status.HTTP_201_CREATED)
+@app.post(path="/person/new",response_model=Person,status_code=status.HTTP_201_CREATED, tags=["Person"])
 def create_person(person:Person_ = Body(...)):
     return person
 
 
 # Validaciones: Query parameters
 
-@app.get(path="/person/detail", status_code=status.HTTP_200_OK)
+@app.get(path="/person/detail", status_code=status.HTTP_200_OK, tags=["Person"])
 def show_person(
     name:Optional[str] = Query(
         None,
@@ -73,15 +85,20 @@ def show_person(
     return {name:age}
 
 # Validaciones: Path Parameters
-
-@app.get(path="/person/detail/{person_id}", status_code=status.HTTP_302_FOUND)
+persons = [1,2,3,4,5]
+@app.get(path="/person/detail/{person_id}", status_code=status.HTTP_302_FOUND, tags=["Person"])
 def show_person(person_id: int = Path(...,gt=0,example=3)):
+    if person_id not in persons:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This person doesn't exist!!"
+        )
     return {person_id:"exits"}
 
 
 # Validaciones: Request Body
 
-@app.put(path="/person/{person_id}", status_code=status.HTTP_202_ACCEPTED)
+@app.put(path="/person/{person_id}", status_code=status.HTTP_202_ACCEPTED,tags=["Person"])
 def update_person(
     person_id:int = Path(
         ...,
@@ -100,12 +117,12 @@ def update_person(
 
 # Forms
 
-@app.post(path="/login",response_model=LoginOut,status_code=status.HTTP_200_OK)
+@app.post(path="/login",response_model=LoginOut,status_code=status.HTTP_200_OK, tags=["Login"])
 def login(username: str = Form(...),password: str = Form(...)):
     return LoginOut(username=username)
 
 # Cookies and headers Parameters
-@app.post(path="/contact", status_code=status.HTTP_200_OK)
+@app.post(path="/contact", status_code=status.HTTP_200_OK, tags=["Contact"])
 def contact(
     first_name: str = Form(
         ...,
@@ -132,7 +149,7 @@ def contact(
 
 # Files
 
-@app.post(path="/post-image")
+@app.post(path="/post-image", tags=["Person"])
 def post_image(image:UploadFile = File(...)):
     return {
         "Filename":image.filename ,
