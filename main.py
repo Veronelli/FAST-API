@@ -1,6 +1,6 @@
 from doctest import Example
 from optparse import Option
-from fastapi import Cookie, FastAPI, Body, Form, Header, Path, Query, status
+from fastapi import Cookie, FastAPI, Body, File, Form, Header, Path, Query, UploadFile, status
 from pydantic import BaseModel, Field, EmailStr, HttpUrl, create_model
 from typing import Optional
 from enum import Enum
@@ -129,3 +129,14 @@ def contact(
     ads: Optional[str] = Cookie(default=None) 
     ):
     return user_agent
+
+# Files
+
+@app.post(path="/post-image")
+def post_image(image:UploadFile = File(...)):
+    return {
+        "Filename":image.filename ,
+        "Format": image.content_type,
+        "Size":round(len(image.file.read())/1024, ndigits=2)
+
+    }
