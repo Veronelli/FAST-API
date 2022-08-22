@@ -57,8 +57,19 @@ def home():
     return {"message":"Hello World"}
 
 # Request and Response Body
-@app.post(path="/person/new",response_model=Person,status_code=status.HTTP_201_CREATED, tags=["Person"])
+@app.post(path="/person/new",response_model=Person,status_code=status.HTTP_201_CREATED, tags=["Person"], summary="Create a person in the app")
 def create_person(person:Person_ = Body(...)):
+    """
+    Create Person
+
+    This path operation creates a perso in the app and save the information in the database
+
+    Parameters:
+    - Request body parameter:
+        - **person: Person** -> a person model with first name, last name, age, hair color and maritial status
+    
+    Returns a person model with first name, last name, age, hair color and maritial status.
+    """
     return person
 
 
